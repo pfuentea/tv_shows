@@ -1,0 +1,51 @@
+{% extends './base.html' %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col8"><h1>EDIT SHOW {{show.id}}</h1></div>
+    </div>
+
+    <div class="row">
+        <div class="col-8">
+            <form>
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" class="form-control form-control-sm" id="title" aria-describedby="titleHelp" placeholder="Enter title" value="{{show.title}}">
+                    <small id="titleHelp" class="form-text text-muted"></small>
+                </div>            
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label for="canales">Network</label>
+                        <select name="canales" id="canales" class="form-control form-control-sm">
+                            {% for net in canales %}
+
+                                <option value="{{net.id}}"> {{net.name}} </option>
+                            {% endfor %}
+                        </select>
+                        network_id:{{show.network.id}}
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="release_date">Release Date</label>
+                        <input type="date" class="form-control form-control-sm" id="release_date" name="release_date" aria-describedby="dateHelp" placeholder="Enter date" value="{{show.release_date}}">
+                    </div>
+                </div>
+                <div class="row p-4">
+                    <div class="col-12">
+                        <div class="form-control col-md-6">
+                            <label for="description">Description</label>
+                            <textarea class="form-control" id="description" rows="3" name="description" value="{{show.descr}}"></textarea>                            
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col text-center">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                        
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
