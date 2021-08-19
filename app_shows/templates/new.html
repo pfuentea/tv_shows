@@ -8,10 +8,11 @@
 
     <div class="row">
         <div class="col-8">
-            <form>
+            <form action="/shows/new" name="form_new" id="form_new" method="POST">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="title">Title</label>
-                    <input type="text" class="form-control form-control-sm" id="title" aria-describedby="titleHelp" placeholder="Enter title">
+                    <input type="text" class="form-control form-control-sm" id="title" name="title" aria-describedby="titleHelp" placeholder="Enter title">
                     <small id="titleHelp" class="form-text text-muted"></small>
                 </div>            
                 <div class="row">
@@ -21,7 +22,9 @@
                             {% for net in canales %}
                                 <option value="{{net.id}}">{{net.name}}</option>
                             {% endfor %}
+                            <option value="otro">Otro</option>
                         </select>
+                        <input type="text" name="new_network" id="new_network" placeholder="Enter new Network" class="form-control form-control-sm d-none" >
                     </div>
                     <div class="form-group col-md-6">
                         <label for="release_date">Release Date</label>
@@ -39,6 +42,7 @@
                 <div class="row">
                     <div class="col text-center">
                         <button type="submit" class="btn btn-primary">Create</button>
+                        <a href="/"  class="btn btn-primary">Back</a>
                         
                     </div>
                 </div>
@@ -47,5 +51,14 @@
     </div>
 </div>
 
-
+<script>
+    $('#canales').on('change',function(){
+        if ( $(this).val() =='otro' ){
+            $('#new_network').removeClass('d-none');
+        }
+        else{
+            $('#new_network').addClass('d-none');
+        }
+    })
+</script>
 {% endblock %}

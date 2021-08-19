@@ -7,10 +7,11 @@
 
     <div class="row">
         <div class="col-8">
-            <form>
+            <form action="" method="POST" name="form_edit" id="form_edit">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="title">Title</label>
-                    <input type="text" class="form-control form-control-sm" id="title" aria-describedby="titleHelp" placeholder="Enter title" value="{{show.title}}">
+                    <input type="text" class="form-control form-control-sm" id="title" name="title" aria-describedby="titleHelp" placeholder="Enter title" value="{{show.title}}">
                     <small id="titleHelp" class="form-text text-muted"></small>
                 </div>            
                 <div class="row">
@@ -18,28 +19,34 @@
                         <label for="canales">Network</label>
                         <select name="canales" id="canales" class="form-control form-control-sm">
                             {% for net in canales %}
-
-                                <option value="{{net.id}}"> {{net.name}} </option>
+                                {% if net.name == show.network.name %}
+                                    <option value="{{net.id}}" selected> {{net.name}} </option>    
+                                {% else %}
+                                    <option value="{{net.id}}"> {{net.name}} </option>
+                                {% endif%}
                             {% endfor %}
+                                <option value="otro">Otro</option>
                         </select>
-                        network_id:{{show.network.id}}
+                        <input type="text" name="new_network" id="new_network" placeholder="Enter new Network" class="form-control form-control-sm d-none" >
                     </div>
                     <div class="form-group col-md-6">
                         <label for="release_date">Release Date</label>
-                        <input type="date" class="form-control form-control-sm" id="release_date" name="release_date" aria-describedby="dateHelp" placeholder="Enter date" value="{{show.release_date}}">
+                        <input type="date" class="form-control form-control-sm" id="release_date" name="release_date" aria-describedby="dateHelp" placeholder="Enter date" 
+                        value="{{fecha_lanzamiento}}">
                     </div>
                 </div>
                 <div class="row p-4">
                     <div class="col-12">
                         <div class="form-control col-md-6">
                             <label for="description">Description</label>
-                            <textarea class="form-control" id="description" rows="3" name="description" value="{{show.descr}}"></textarea>                            
+                            <textarea class="form-control" id="description" rows="3" name="description" >{{show.descr}}</textarea>                            
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col text-center">
                         <button type="submit" class="btn btn-primary">Update</button>
+                        <a href="/"  class="btn btn-primary">Cancel</a>
                         
                     </div>
                 </div>
@@ -47,5 +54,14 @@
         </div>
     </div>
 </div>
-
+<script>
+    $('#canales').on('change',function(){
+        if ( $(this).val() =='otro' ){
+            $('#new_network').removeClass('d-none');
+        }
+        else{
+            $('#new_network').addClass('d-none');
+        }
+    })
+</script>
 {% endblock %}
