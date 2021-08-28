@@ -7,17 +7,17 @@
 
     <div class="row">
         <div class="col-8">
-            <form action="" method="POST" name="form_edit" id="form_edit">
+            <form action="/shows/{{show.id}}/update" method="POST" name="form_edit" id="form_edit">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="title">Title</label>
-                    <input type="text" class="form-control form-control-sm" id="title" name="title" aria-describedby="titleHelp" placeholder="Enter title" value="{{show.title}}">
+                    <input type="text" class="form-control form-control-sm" id="title" name="title" aria-describedby="titleHelp" placeholder="Enter title" value="{{show.title}}" >
                     <small id="titleHelp" class="form-text text-muted"></small>
                 </div>            
                 <div class="row">
                     <div class="form-group col-md-6">
                         <label for="canales">Network</label>
-                        <select name="canales" id="canales" class="form-control form-control-sm">
+                        <select name="canales" id="canales" class="form-control form-control-sm" >
                             {% for net in canales %}
                                 {% if net.name == show.network.name %}
                                     <option value="{{net.id}}" selected> {{net.name}} </option>    
@@ -32,7 +32,7 @@
                     <div class="form-group col-md-6">
                         <label for="release_date">Release Date</label>
                         <input type="date" class="form-control form-control-sm" id="release_date" name="release_date" aria-describedby="dateHelp" placeholder="Enter date" 
-                        value="{{fecha_lanzamiento}}">
+                        value="{{fecha_lanzamiento}}" >
                     </div>
                 </div>
                 <div class="row p-4">

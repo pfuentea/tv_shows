@@ -1,9 +1,13 @@
 
 from django.shortcuts import render, HttpResponse,redirect
-from .models import Show, Network
+from .models import Show, Network, User
 from django.contrib import messages
 from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
+import bcrypt
+
+
 
 def index(request):
     shows=Show.objects.all()
@@ -22,8 +26,7 @@ def detail(request,show_id):
     return render(request, 'detail.html', context)
 
 # shows/new
-def new(request):
-
+def create(request):
     if request.method == "GET":
         canales = Network.objects.all()
         #messages.success(request,f'Usted va a crear un nuevo TV Show ')
@@ -32,23 +35,32 @@ def new(request):
         }
         return render(request, 'new.html', context)
     if request.method == "POST":
-        titulo=request.POST['title']
-        if request.POST['new_network'] != '':
-            canal=Network.objects.get(id=request.POST['canales'])
+        errors = Show.objects.basic_validator(request.POST)
+        if len(errors) > 0:
+        # si el diccionario de errores contiene algo, recorra cada par clave-valor y cree un mensaje flash
+            for key, value in errors.items():
+                messages.error(request, value)
+            # redirigir al usuario al formulario para corregir los errores
+            return redirect('/shows/create')
         else:
-            canal=Network.objects.create(name=request.POST['new_network'])
-        
-        fecha=request.POST['release_date']
-        descr=request.POST['description']
-        Show.objects.create(title=titulo,network=canal,release_date=fecha,descr=descr)
-        messages.success(request,f'Usted a creado un nuevo TV Show ')
-        return redirect('/shows')
+            titulo=request.POST['title']
+            if request.POST['canales'] == 'otro':
+                try:
+                    canal=Network.objects.get(name=request.POST['new_network'])
+                except ObjectDoesNotExist as DoesNotExist:
+                    canal=Network.objects.create(name=request.POST['new_network'])
+            else:
+                canal=Network.objects.get(id=request.POST['canales'])        
+            fecha=request.POST['release_date']
+            descr=request.POST['description']
+            Show.objects.create(title=titulo,network=canal,release_date=fecha,descr=descr)
+            messages.success(request,f'Usted a creado un nuevo TV Show ')
+            return redirect('/shows')
 
 # shows/<int:show_id>/edit
 def edit(request,show_id):
     if request.method == "GET":
         show=Show.objects.get(id=show_id)
-
         fecha_lanzamiento=show.release_date
         fecha_lanzamiento=fecha_lanzamiento.strftime('%Y-%m-%d')
         print(fecha_lanzamiento)
@@ -60,29 +72,31 @@ def edit(request,show_id):
         }
         return render(request, 'edit.html', context)
     if request.method == "POST":
-
-        titulo=request.POST['title']  
-        
-        if request.POST['canales'] == 'otro':
-            try:
-                canal=Network.objects.get(name=request.POST['new_network'])
-            except ObjectDoesNotExist as DoesNotExist:
-                canal=Network.objects.create(name=request.POST['new_network'])
-
+        errors = Show.objects.basic_validator(request.POST)
+        if len(errors) > 0:
+            for key, value in errors.items():
+                messages.error(request, value)
+            # redirigir al usuario al formulario para corregir los errores
+            return redirect('/shows/'+str(show_id)+'/edit')
         else:
-            canal=Network.objects.get(id=request.POST['canales'])
-            
-        fecha=request.POST['release_date']
-        descr=request.POST['description']
-        
-        show=Show.objects.get(id=show_id)
-        show.title=titulo
-        show.network=canal
-        show.release_date=fecha
-        show.descr=descr
-        show.save()
-        messages.success(request,f'Se modificó el TV Show ')
-        return redirect('/shows')
+            titulo=request.POST['title']          
+            if request.POST['canales'] == 'otro':
+                try:
+                    canal=Network.objects.get(name=request.POST['new_network'])
+                except ObjectDoesNotExist as DoesNotExist:
+                    canal=Network.objects.create(name=request.POST['new_network'])
+            else:
+                canal=Network.objects.get(id=request.POST['canales'])            
+            fecha=request.POST['release_date']
+            descr=request.POST['description']        
+            show=Show.objects.get(id=show_id)
+            show.title=titulo
+            show.network=canal
+            show.release_date=fecha
+            show.descr=descr
+            show.save()
+            messages.success(request,f'Se modificó el TV Show ')
+            return redirect(f'/shows/{show_id}')
 # shows/<int:show_id>/destroy
 def destroy(request,show_id):
 
@@ -96,3 +110,35 @@ def destroy(request,show_id):
     }
 
     return redirect('/shows')
+
+def test(request):
+    context = {
+    }
+
+    return render(request, 'test.html', context)
+
+def register(request):
+    if request.method == "GET":
+        return redirect('/register')
+    if request.method == "POST":
+        pass
+
+def login(request):
+    email = request.POST['email']
+    password=request.POST['password']
+    try:
+        user= User.objects.get(email=email)
+    except User.DoesNotExist:
+        messages.error(request,'Usuario inexistente o contraseña incorrecta')
+        return redirect('/register')
+
+    if not bcrypt.checkpw(password.encode(),user.password.encode()):
+        messages.error(request,'Usuario inexistente o contraseña incorrecta')
+        return redirect('/register')
+
+    request.session['user']={
+        'id':user.id,
+        'name':user.name,
+        'email':user.email,
+        'avatar':user.avatar
+    }

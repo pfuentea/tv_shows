@@ -1,0 +1,25 @@
+body { 
+    background: url("https://www.nicepng.com/png/detail/2-21980_television-tv-png-free-icons-and-backgrounds-old.png") no-repeat center center fixed; 
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity:0.9;
+   
+  }
+
+  table.dataTable thead tr {
+    background-color: rgb(0, 119, 128);
+  }
+  .dataTables_lengthchange label,
+  .dataTables_filter label {
+  color:gold;
+  font-weight: bold;
+  background: -webkit-linear-gradient(#eee, #333);
+  }
+
+  .dataTables_length label,
+  .dataTables_filter label,
+  .dataTables_info {
+  color:gold;
+  font-weight: bold;
+  background: -webkit-linear-gradient(#eee, #333);
+  }
