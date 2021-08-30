@@ -21,6 +21,9 @@ class ShowManager(models.Manager):
 class UserManager(models.Manager):
     def basic_validator(self, postData):
         errors={}
+        if postData['password_confirm']!=postData['password']:
+            errors["password"] = "Las contraseñas deben coincidir"
+        return errors
 
 # Create your models here.
 class Network(models.Model):

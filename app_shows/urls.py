@@ -10,4 +10,7 @@ urlpatterns = [
     path('shows/<int:show_id>/destroy', views.destroy),
     path('shows/<int:show_id>/update', views.edit),
     path('test', views.test),
+    path('login', views.login),
+    path('register', views.register),
+    path('logout', views.logout),
 ]

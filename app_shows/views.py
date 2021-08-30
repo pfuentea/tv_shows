@@ -6,17 +6,21 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 import bcrypt
+from .decorators import login_required
 
 
-
+@login_required
 def index(request):
     shows=Show.objects.all()
+    logout='Logout'
     context = {
-        "shows":shows
+        "shows":shows,
+        "logout":logout
     }
     return render(request, 'index.html', context)
 
 # shows/<int:show_id>
+@login_required
 def detail(request,show_id):
     #messages.success(request,f'Usted va a visualizar un  TV Show ')
     show=Show.objects.get(id=show_id)
@@ -26,6 +30,7 @@ def detail(request,show_id):
     return render(request, 'detail.html', context)
 
 # shows/new
+@login_required
 def create(request):
     if request.method == "GET":
         canales = Network.objects.all()
@@ -58,6 +63,7 @@ def create(request):
             return redirect('/shows')
 
 # shows/<int:show_id>/edit
+@login_required
 def edit(request,show_id):
     if request.method == "GET":
         show=Show.objects.get(id=show_id)
@@ -98,6 +104,7 @@ def edit(request,show_id):
             messages.success(request,f'Se modificó el TV Show ')
             return redirect(f'/shows/{show_id}')
 # shows/<int:show_id>/destroy
+@login_required
 def destroy(request,show_id):
 
     Show.objects.get(id=show_id).delete()
@@ -119,9 +126,27 @@ def test(request):
 
 def register(request):
     if request.method == "GET":
-        return redirect('/register')
+        context={}
+        return render(request, 'register.html', context)
     if request.method == "POST":
-        pass
+        name=request.POST['name']
+        email =request.POST['email']
+        password=request.POST['password']
+        #password_confirm= request.POST['email']
+
+        errors= User.objects.basic_validator(request.POST)
+        if len(errors)>0:
+            for k, mensaje_de_error in errors.items():
+                messages.error(request,mensaje_de_error)
+        
+        else:
+            pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+            try:
+                User.objects.create(name=name,email=email,password=pw_hash)
+                return redirect('/shows')
+            except IntegrityError :
+                messages.error(request,'Este correo ya tiene un usuario.')
+                return redirect('/register')
 
 def login(request):
     email = request.POST['email']
@@ -142,3 +167,8 @@ def login(request):
         'email':user.email,
         'avatar':user.avatar
     }
+    return redirect('/shows')
+
+def logout(request):
+    request.session.clear()
+    return redirect('/register')
